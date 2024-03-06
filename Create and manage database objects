@@ -1,0 +1,56 @@
+-- Create Customers table
+CREATE TABLE Customers (
+    customer_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100) UNIQUE,
+    phone_number VARCHAR(20)
+);
+
+-- Create Orders table
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date TIMESTAMP,
+    total_amount DECIMAL(10, 2),
+    status VARCHAR(20),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+-- Create OrderDetails table
+CREATE TABLE OrderDetails (
+    order_detail_id INT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    price DECIMAL(10, 2),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- Create Products table
+CREATE TABLE Products (
+    product_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    description TEXT,
+    price DECIMAL(10, 2),
+    inventory INT,
+    threshold INT,
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+);
+
+-- Create Categories table
+CREATE TABLE Categories (
+    category_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+-- Create UpdateInventory trigger
+CREATE TRIGGER UpdateInventory
+AFTER INSERT ON OrderDetails
+FOR EACH ROW
+BEGIN
+    UPDATE Products
+    SET inventory = inventory - NEW.quantity
+    WHERE product_id = NEW.product_id;
+END;
